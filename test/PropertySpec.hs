@@ -75,23 +75,41 @@ spec = do
 
       it "extracts a variable name of variable that is not in scope from error an message" $ do
         parseNotInScope . build $ do
+#if __GLASGOW_HASKELL__ < 707
           "<interactive>:4:1: Not in scope: `x'"
           ""
           "<interactive>:4:6: Not in scope: `x'"
+#else
+          "<interactive>:4:1: Not in scope: ‛x’"
+          ""
+          "<interactive>:4:6: Not in scope: ‛x’"
+#endif
         `shouldBe` ["x"]
 
       it "ignores duplicates" $ do
         parseNotInScope . build $ do
+#if __GLASGOW_HASKELL__ < 707
           "<interactive>:4:1: Not in scope: `x'"
           ""
           "<interactive>:4:6: Not in scope: `x'"
+#else
+          "<interactive>:4:1: Not in scope: ‛x’"
+          ""
+          "<interactive>:4:6: Not in scope: ‛x’"
+#endif
         `shouldBe` ["x"]
 
       it "works for error messages with suggestions" $ do
         parseNotInScope . build $ do
+#if __GLASGOW_HASKELL__ < 707
           "<interactive>:1:1:"
           "    Not in scope: `is'"
           "    Perhaps you meant `id' (imported from Prelude)"
+#else
+          "<interactive>:1:1:"
+          "    Not in scope: ‛is’"
+          "    Perhaps you meant ‛id’ (imported from Prelude)"
+#endif
         `shouldBe` ["is"]
 
       it "works for variable names that contain a prime" $ do
