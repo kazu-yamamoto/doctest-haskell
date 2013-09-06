@@ -57,7 +57,11 @@ freeVariables repl term = do
 -- | Parse and return all variables that are not in scope from a ghc error
 -- message.
 --
+#if __GLASGOW_HASKELL__ < 707
 -- >>> parseNotInScope "<interactive>:4:1: Not in scope: `foo'"
+#else
+-- >>> parseNotInScope "<interactive>:4:1: Not in scope: \8219foo\8217"
+#endif
 -- ["foo"]
 parseNotInScope :: String -> [String]
 parseNotInScope = nub . map extractVariable . filter ("Not in scope: " `isInfixOf`) . lines
