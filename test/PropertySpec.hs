@@ -80,9 +80,9 @@ spec = do
           ""
           "<interactive>:4:6: Not in scope: `x'"
 #else
-          "<interactive>:4:1: Not in scope: ‛x’"
+          "<interactive>:4:1: Not in scope: \8219x\8217"
           ""
-          "<interactive>:4:6: Not in scope: ‛x’"
+          "<interactive>:4:6: Not in scope: \8219x\8217"
 #endif
         `shouldBe` ["x"]
 
@@ -93,9 +93,9 @@ spec = do
           ""
           "<interactive>:4:6: Not in scope: `x'"
 #else
-          "<interactive>:4:1: Not in scope: ‛x’"
+          "<interactive>:4:1: Not in scope: \8219x\8217"
           ""
-          "<interactive>:4:6: Not in scope: ‛x’"
+          "<interactive>:4:6: Not in scope: \8219x\8217"
 #endif
         `shouldBe` ["x"]
 
@@ -107,8 +107,8 @@ spec = do
           "    Perhaps you meant `id' (imported from Prelude)"
 #else
           "<interactive>:1:1:"
-          "    Not in scope: ‛is’"
-          "    Perhaps you meant ‛id’ (imported from Prelude)"
+          "    Not in scope: \8219is\8217"
+          "    Perhaps you meant \8219id\8217 (imported from Prelude)"
 #endif
         `shouldBe` ["is"]
 
