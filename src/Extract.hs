@@ -177,7 +177,13 @@ docStringsFromModule mod = map (fmap (toLocated . fmap unpackDocString)) docs
     -- traversing the whole source in a generic way, to ensure that we get
     -- everything in source order.
     header  = [(Nothing, x) | Just x <- [hsmodHaddockModHeader source]]
+#if __GLASGOW_HASKELL__ >= 710
+    exports = case hsmodExports source of
+        Nothing -> []
+        Just (L _ xs) -> [(Nothing, L loc doc) | L loc (IEDoc doc) <- xs]
+#else
     exports = [(Nothing, L loc doc) | L loc (IEDoc doc) <- concat (hsmodExports source)]
+#endif
     decls   = extractDocStrings (hsmodDecls source)
 
 type Selector a = a -> ([(Maybe String, LHsDocString)], Bool)
@@ -196,7 +202,11 @@ extractDocStrings = everythingBut (++) (([], False) `mkQ` fromLHsDecl
   `extQ` fromLDocDecl
   `extQ` fromLHsDocString
   `extQ` (ignore :: Selector NameSet)
+#if __GLASGOW_HASKELL__ >= 710
+  `extQ` (ignore :: Selector (PostTc Id Kind))
+#else
   `extQ` (ignore :: Selector PostTcKind)
+#endif
 
   -- HsExpr never contains any documentation, but it may contain error thunks.
   --
@@ -210,7 +220,13 @@ extractDocStrings = everythingBut (++) (([], False) `mkQ` fromLHsDecl
   -- undefined before type checking
   `extQ` (ignore :: Selector Coercion)
 
-#if __GLASGOW_HASKELL__ >= 706
+#if __GLASGOW_HASKELL__ >= 710
+  -- hswb_kvs and hswb_tvs may be error thunks
+  `extQ` (ignore :: Selector (HsWithBndrs Name [LHsType RdrName]))
+  `extQ` (ignore :: Selector (HsWithBndrs Name [LHsType Name]))
+  `extQ` (ignore :: Selector (HsWithBndrs Name (LHsType RdrName)))
+  `extQ` (ignore :: Selector (HsWithBndrs Name (LHsType Name)))
+#elif __GLASGOW_HASKELL__ >= 706
   -- hswb_kvs and hswb_tvs may be error thunks
   `extQ` (ignore :: Selector (HsWithBndrs [LHsType RdrName]))
   `extQ` (ignore :: Selector (HsWithBndrs [LHsType Name]))
